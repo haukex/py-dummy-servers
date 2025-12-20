@@ -13,7 +13,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [Ubuntu, Windows, macOS]
+        # Unfortunately, the Windows GH Action Runners can't run Linux Docker images.
+        # Tests on my local machine show this package should work on Windows, though.
+        # The macOS GH Action Runners apparently don't have Docker installed.
+        # os: [Ubuntu, Windows, macOS]
+        os: [Ubuntu]
         # Remember that some tests below only run on one version, so keep that up-to-date.
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}-latest
