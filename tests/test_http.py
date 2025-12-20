@@ -23,7 +23,7 @@ along with this program. If not, see https://www.gnu.org/licenses/
 """
 import unittest
 import requests
-from dummy_servers.dummy_http import DummyHTTPServer
+from dummy_servers.http import DummyHTTPServer
 
 VERBOSE = False
 

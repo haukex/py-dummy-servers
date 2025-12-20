@@ -25,7 +25,7 @@ import unittest
 from unittest.mock import patch
 from tempfile import TemporaryDirectory
 import valkey
-from dummy_servers.dummy_valkey import DummyValkeyServer
+from dummy_servers.valkey import DummyValkeyServer
 
 VERBOSE = False
 

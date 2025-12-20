@@ -29,7 +29,7 @@ from email.message import MIMEPart
 from email.message import EmailMessage
 from smtplib import SMTP
 import igbpyutils.error
-from dummy_servers.dummy_smtp import DummySMTPServer
+from dummy_servers.smtp import DummySMTPServer
 
 # spell-checker: ignore preferencelist
 

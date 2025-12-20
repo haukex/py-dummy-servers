@@ -27,8 +27,8 @@ from pathlib import Path
 import unittest
 import ftplib
 import io
-from dummy_servers.dummy_ftp import DummyCustomPureFtpd, DockerNetwork
-from dummy_servers.dummy_valkey import DummyValkeyServer
+from dummy_servers.ftp import DummyCustomPureFtpd, DockerNetwork
+from dummy_servers.valkey import DummyValkeyServer
 
 # spell-checker: ignore Unicödé xread
 
