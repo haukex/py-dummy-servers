@@ -36,17 +36,17 @@ class TestHTTPServer(unittest.TestCase):
             requests.post( f'http://localhost:{httpd.port}/testing/', json={'foo':'bar'}, timeout=5,
                 headers={ 'Authorization': 'Token testing' } ).raise_for_status()
 
-            req = httpd.request_log.get(timeout=5)
+            req = httpd.queue.get(timeout=5)
             self.assertEqual( req.method, 'GET' )
             self.assertEqual( req.path, '/' )
             self.assertEqual( req.body, b'' )
 
-            req = httpd.request_log.get(timeout=5)
+            req = httpd.queue.get(timeout=5)
             self.assertEqual( req.method, 'HEAD' )
             self.assertEqual( req.path, '/hello' )
             self.assertEqual( req.body, b'' )
 
-            req = httpd.request_log.get(timeout=5)
+            req = httpd.queue.get(timeout=5)
             self.assertEqual( req.method, 'POST' )
             self.assertEqual( req.path, '/testing/' )
             self.assertEqual( req.headers['Content-Length'], str(len(req.body)) )
@@ -54,4 +54,4 @@ class TestHTTPServer(unittest.TestCase):
             self.assertEqual( req.body.strip(), b'{"foo": "bar"}' )
 
             with self.assertRaises(Exception):
-                httpd.request_log.get(timeout=1)
+                httpd.queue.get(timeout=1)

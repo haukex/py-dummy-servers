@@ -22,7 +22,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program. If not, see https://www.gnu.org/licenses/
 """
 import logging
-from queue import Queue
+from queue import SimpleQueue
 from typing import NamedTuple
 from contextlib import contextmanager
 from email.parser import Parser, BytesParser
@@ -34,7 +34,7 @@ from aiosmtpd.controller import Controller
 # spell-checker: ignore aiosmtpd
 
 class _MyMailHandler:
-    def __init__(self, *, queue :Queue[EmailMessage], verbose :bool):
+    def __init__(self, *, queue :SimpleQueue[EmailMessage], verbose :bool):
         self.queue = queue
         self.verbose = verbose
     async def handle_DATA(self, _server: smtp.SMTP, session: smtp.Session, envelope: smtp.Envelope) -> str:  # pylint: disable=invalid-name
@@ -58,13 +58,18 @@ class _MyMailHandler:
 class DummySMTP(NamedTuple):
     host :str
     port :int
-    queue :Queue[EmailMessage]
+    queue :SimpleQueue[EmailMessage]
 
 @contextmanager
 def DummySMTPServer(*, hostname :str = '127.0.0.1', port: int = 8025, verbose :bool = False):  # pylint: disable=invalid-name
-    for log in ('mail.log', 'asyncio'):
-        logging.getLogger(log).setLevel(logging.WARNING)
-    queue :Queue[EmailMessage] = Queue()
+    """A context manager that provides a dummy SMTP server.
+
+    :return: A named tuple that includes a :class:`~queue.SimpleQueue` from which received messages can be retrieved.
+    """
+    if not verbose:  # pragma: no branch
+        for log in ('mail.log', 'asyncio'):
+            logging.getLogger(log).setLevel(logging.WARNING)
+    queue :SimpleQueue[EmailMessage] = SimpleQueue()
     smtpd = Controller(handler=_MyMailHandler(queue=queue, verbose=verbose), hostname=hostname, port=port)
     smtpd.start()
     if verbose:  # pragma: no cover

@@ -70,6 +70,12 @@ def DummyValkeyServer(*,  # pylint: disable=invalid-name
         docker_network :Optional[str] = None, docker_name :Optional[str] = None,
         host_address :str = '127.0.0.1', host_port :int = 6379, verbose :bool = False,
         timeout_s :float = 5, data_dir :Optional[Filename] = None, no_clean :bool = False):
+    """A context manager that provides a Valkey server.
+
+    Ensures that the Valkey server is up before returning.
+
+    :return: A :class:`~valkey.Valkey` instance connected to the server.
+    """
     with _valkey_container(docker_network=docker_network, docker_name=docker_name, host_address=host_address,
             host_port=host_port, verbose=verbose, data_dir=data_dir, no_clean=no_clean):
         retry_interval_s :float = 0.5

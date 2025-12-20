@@ -1,7 +1,10 @@
 Dummy Servers for Testing
 =========================
 
-TODO: Docs
+This package provides some simple mock servers that can be used in tests.
+This documentation is a bit sparse; please see the code for details.
+Docker is required, except for the SMTP and HTTP servers.
+
 
 Author, Copyright, and License
 ------------------------------

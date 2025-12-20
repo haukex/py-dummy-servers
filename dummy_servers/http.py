@@ -76,16 +76,20 @@ class _MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
 class DummyHTTP(NamedTuple):
     port :int
-    request_log :SimpleQueue[LoggedRequest]
+    queue :SimpleQueue[LoggedRequest]
 
 @contextmanager
 def DummyHTTPServer(*, bind_address :str = '127.0.0.1', bind_port :int = 8083, verbose :bool = False):  # pylint: disable=invalid-name
+    """A context manager that provides a dummy HTTP server that can handle GET, POST, and HEAD requests.
+
+    :return: A named tuple that includes a :class:`~queue.SimpleQueue` from which received requests can be retrieved.
+    """
     httpd = _MyHTTPServer((bind_address, bind_port), _MyHTTPRequestHandler, verbose=verbose)
     thread = Thread(target=httpd.serve_forever)
     thread.start()
     try:
         httpd.start_sem.acquire(timeout=5)
-        yield DummyHTTP(port=httpd.server_port, request_log=httpd.request_log)
+        yield DummyHTTP(port=httpd.server_port, queue=httpd.request_log)
     finally:
         httpd.shutdown()
         httpd.server_close()

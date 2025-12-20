@@ -33,7 +33,10 @@ import requests
 
 @contextmanager
 def DockerNetwork(*, verbose :bool):  # pylint: disable=invalid-name
-    """A context manager that provides a Docker Network. Returns the network name (a random string)."""
+    """A context manager that provides a Docker network.
+
+    :return: The network name (a random string).
+    """
     name = f"test-net-{uuid4()}"
     with closing(docker.from_env()) as client:
         net = client.networks.create(name=name)
@@ -62,8 +65,10 @@ def DummyCustomPureFtpd(*,  # pylint: disable=invalid-name, too-many-locals
     """A context manager that provides a `Pure-FTPd <https://github.com/jedisct1/pure-ftpd/>`_
     FTPS server via the custom Docker image <https://ghcr.io/haukex/pure-ftpd>.
 
-    .. note:: While the server's control connection port can be changed via the corresponding argument,
-        the data ports 30000-30009 currently can't be remapped.
+    Ensures that the FTP server is up before returning.
+
+    .. note:: While the server's control connection port can be changed via the corresponding
+        argument, there is currently no argument for remapping the data ports 30000-30009.
     """
     with closing(docker.from_env()) as client, NamedTempFileDeleteLater() as tfh:
         tfh.write(ftp_passwd)
