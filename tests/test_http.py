@@ -31,15 +31,27 @@ class TestHTTPServer(unittest.TestCase):
 
     def test_httpd(self):
         with DummyHTTPServer(verbose=VERBOSE) as httpd:
-            resp = requests.post( f'http://localhost:{httpd.server_port}/testing/', json={'foo':'bar'}, timeout=5,
-                headers={ 'Authorization': 'Token testing' } )
-            resp.raise_for_status()
+            requests.get( f'http://localhost:{httpd.port}/', timeout=5 ).raise_for_status()
+            requests.head( f'http://localhost:{httpd.port}/hello', timeout=5 ).raise_for_status()
+            requests.post( f'http://localhost:{httpd.port}/testing/', json={'foo':'bar'}, timeout=5,
+                headers={ 'Authorization': 'Token testing' } ).raise_for_status()
+
             req = httpd.request_log.get(timeout=5)
-            #TODO: GET and HEAD
+            self.assertEqual( req.method, 'GET' )
+            self.assertEqual( req.path, '/' )
+            self.assertEqual( req.body, b'' )
+
+            req = httpd.request_log.get(timeout=5)
+            self.assertEqual( req.method, 'HEAD' )
+            self.assertEqual( req.path, '/hello' )
+            self.assertEqual( req.body, b'' )
+
+            req = httpd.request_log.get(timeout=5)
             self.assertEqual( req.method, 'POST' )
             self.assertEqual( req.path, '/testing/' )
             self.assertEqual( req.headers['Content-Length'], str(len(req.body)) )
             self.assertEqual( req.headers['Authorization'], 'Token testing' )
             self.assertEqual( req.body.strip(), b'{"foo": "bar"}' )
+
             with self.assertRaises(Exception):
                 httpd.request_log.get(timeout=1)

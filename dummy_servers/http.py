@@ -55,16 +55,28 @@ class _MyHTTPRequestHandler(BaseHTTPRequestHandler):
             super().log_message(*args, **kwargs)
     def do_POST(self):  # pylint: disable=invalid-name
         assert isinstance(self.server, _MyHTTPServer)
-        content_len = self.headers.get('Content-Length')
-        assert content_len  # mypy
+        body = b''
+        try:
+            _cl = self.headers.get('Content-Length')
+            if _cl is None:
+                raise TypeError()
+            content_len = int(_cl)
+        except (TypeError, ValueError):
+            pass
+        else:
+            body = self.rfile.read( int(content_len) )
         self.server.request_log.put( LoggedRequest(
             method=self.command, path=self.path, headers=dict(self.headers.items()),
-            body=self.rfile.read( int(content_len) )) )
+            body=body ) )
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Length", "0")
         self.end_headers()
     do_GET = do_POST  # pylint: disable=invalid-name
     do_HEAD = do_POST  # pylint: disable=invalid-name
+
+class DummyHTTP(NamedTuple):
+    port :int
+    request_log :SimpleQueue[LoggedRequest]
 
 @contextmanager
 def DummyHTTPServer(*, bind_address :str = '127.0.0.1', bind_port :int = 8083, verbose :bool = False):  # pylint: disable=invalid-name
@@ -73,7 +85,7 @@ def DummyHTTPServer(*, bind_address :str = '127.0.0.1', bind_port :int = 8083, v
     thread.start()
     try:
         httpd.start_sem.acquire(timeout=5)
-        yield httpd
+        yield DummyHTTP(port=httpd.server_port, request_log=httpd.request_log)
     finally:
         httpd.shutdown()
         httpd.server_close()
