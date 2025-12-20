@@ -23,12 +23,15 @@ along with this program. If not, see https://www.gnu.org/licenses/
 """
 import logging
 from queue import Queue
+from typing import NamedTuple
 from contextlib import contextmanager
 from email.parser import Parser, BytesParser
 from email.message import EmailMessage
 import email.policy
 from aiosmtpd import smtp  # https://aiosmtpd.aio-libs.org/
 from aiosmtpd.controller import Controller
+
+# spell-checker: ignore aiosmtpd
 
 class _MyMailHandler:
     def __init__(self, *, queue :Queue[EmailMessage], verbose :bool):
@@ -52,17 +55,22 @@ class _MyMailHandler:
         self.queue.put(message)
         return "250 OK"
 
+class DummySMTP(NamedTuple):
+    host :str
+    port :int
+    queue :Queue[EmailMessage]
+
 @contextmanager
-def DummySMTPServer(*, verbose :bool = False):  # pylint: disable=invalid-name
+def DummySMTPServer(*, hostname :str = '127.0.0.1', port: int = 8025, verbose :bool = False):  # pylint: disable=invalid-name
     for log in ('mail.log', 'asyncio'):
         logging.getLogger(log).setLevel(logging.WARNING)
     queue :Queue[EmailMessage] = Queue()
-    smtpd = Controller(_MyMailHandler(queue=queue, verbose=verbose))
+    smtpd = Controller(handler=_MyMailHandler(queue=queue, verbose=verbose), hostname=hostname, port=port)
     smtpd.start()
     if verbose:  # pragma: no cover
         print(f"SMTP Server up at {smtpd.hostname}:{smtpd.port}")
     try:
-        yield (smtpd.hostname, smtpd.port), queue
+        yield DummySMTP(host=smtpd.hostname, port=smtpd.port, queue=queue)
     finally:
         smtpd.stop()
         if verbose:  # pragma: no cover

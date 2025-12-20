@@ -53,11 +53,11 @@ class TestSMTPServer(unittest.TestCase):
 
     def test_smtp(self):
         igbpyutils.error.logging_config(level=logging.DEBUG if VERBOSE else logging.INFO)
-        with DummySMTPServer(verbose=VERBOSE) as ((host,port),queue):
-            send_test_mail(subj='Test1', body='Hello, World!', smtp_server=host, smtp_port=port)
-            send_test_mail(subj='Test2', body='Foobar', as_bcc=True, smtp_server=host, smtp_port=port)
+        with DummySMTPServer(verbose=VERBOSE) as smtp:
+            send_test_mail(subj='Test1', body='Hello, World!', smtp_server=smtp.host, smtp_port=smtp.port)
+            send_test_mail(subj='Test2', body='Foobar', as_bcc=True, smtp_server=smtp.host, smtp_port=smtp.port)
 
-            msg = queue.get(timeout=5)
+            msg = smtp.queue.get(timeout=5)
             self.assertEqual( msg["From"], 'sender@example.com' )
             self.assertEqual( msg["X-MailFrom"], 'sender@example.com' )
             self.assertEqual( msg["To"], 'recipient@example.com' )
@@ -70,7 +70,7 @@ class TestSMTPServer(unittest.TestCase):
             assert isinstance( body, MIMEPart )
             self.assertEqual( body.get_content(), "Hello, World!\r\n" )
 
-            msg = queue.get(timeout=5)
+            msg = smtp.queue.get(timeout=5)
             self.assertEqual( msg["From"], 'sender@example.com' )
             self.assertEqual( msg["X-MailFrom"], 'sender@example.com' )
             self.assertEqual( msg["To"], 'fake@example.com' )
