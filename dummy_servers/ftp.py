@@ -24,7 +24,7 @@ along with this program. If not, see https://www.gnu.org/licenses/
 import os
 import sys
 from uuid import uuid4
-from typing import Any, Optional
+from typing import Any, Optional, NamedTuple
 from contextlib import closing, contextmanager
 from igbpyutils.file import NamedTempFileDeleteLater, Filename
 import docker.errors
@@ -33,7 +33,8 @@ import requests
 
 @contextmanager
 def DockerNetwork(*, verbose :bool):  # pylint: disable=invalid-name
-    name = f"test-{uuid4()}"
+    """A context manager that provides a Docker Network. Returns the network name (a random string)."""
+    name = f"test-net-{uuid4()}"
     with closing(docker.from_env()) as client:
         net = client.networks.create(name=name)
         if verbose:  # pragma: no cover
@@ -47,6 +48,10 @@ def DockerNetwork(*, verbose :bool):  # pylint: disable=invalid-name
 
 # spell-checker: ignore lftp getuid getgid
 
+class DummyFTP(NamedTuple):
+    host :str
+    port :int
+
 @contextmanager
 def DummyCustomPureFtpd(*,  # pylint: disable=invalid-name, too-many-locals
         docker_network :Optional[str] = None, docker_name :Optional[str] = None,
@@ -54,6 +59,12 @@ def DummyCustomPureFtpd(*,  # pylint: disable=invalid-name, too-many-locals
         host_address :str = '127.0.0.1', host_port :int = 2121, verbose :bool = False,
         ftp_passwd :bytes = b'test_user:PASS_WORD\n', valkey_host :Optional[str] = None,
         data_dir :Optional[Filename] = None):
+    """A context manager that provides a `Pure-FTPd <https://github.com/jedisct1/pure-ftpd/>`_
+    FTPS server via the custom Docker image <https://ghcr.io/haukex/pure-ftpd>.
+
+    .. note:: While the server's control connection port can be changed via the corresponding argument,
+        the data ports 30000-30009 currently can't be remapped.
+    """
     with closing(docker.from_env()) as client, NamedTempFileDeleteLater() as tfh:
         tfh.write(ftp_passwd)
         tfh.close()
@@ -83,7 +94,7 @@ def DummyCustomPureFtpd(*,  # pylint: disable=invalid-name, too-many-locals
                 print(f"Pure-FTPd health check output: {output!r}")
             if exitcode:  # pragma: no cover
                 raise RuntimeError("Failed to get a positive health check on the Pure-FTPd server")
-            yield
+            yield DummyFTP(host=host_address, port=host_port)
         finally:  # pylint: disable=duplicate-code
             if verbose:  # pragma: no cover
                 print("\n##### ##### ##### ##### ##### Pure-FTPd Docker Logs ##### ##### ##### ##### #####")

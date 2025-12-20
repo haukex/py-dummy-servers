@@ -36,11 +36,11 @@ VERBOSE = False
 
 class TestPureFtpdServer(unittest.TestCase):
 
-    def _ftp_test(self):
+    def _ftp_test(self, ftp :tuple[str, int]):
         with closing(ftplib.FTP_TLS()) as ftps:
             if VERBOSE:  # pragma: no cover
                 ftps.set_debuglevel(2)
-            ftps.connect(host='127.0.0.1', port=2121)
+            ftps.connect(host=ftp[0], port=ftp[1])
             ftps.login(user='test_user', passwd='PASS_WORD')
             ftps.storbinary("STOR Hello.txt", io.BytesIO(b'Hello, World!'))
             ftps.storbinary("STOR Unicödé.txt", io.BytesIO('€uro'.encode('UTF-8')))
@@ -51,13 +51,13 @@ class TestPureFtpdServer(unittest.TestCase):
     def test_ftpd(self):
         with TemporaryDirectory() as td:
             tempdir = Path(td)
-            with DummyCustomPureFtpd(verbose=VERBOSE, data_dir=td, docker_name='test-ftp-server'):
+            with DummyCustomPureFtpd(verbose=VERBOSE, data_dir=td, docker_name='test-ftp-server') as ftp:
                 # Note the context manager already does a health check on the server.
                 self.assertTrue( (tempdir/'test_user').is_dir() )
                 self.assertFalse( (tempdir/'test_user'/'Hello.txt').exists() )
                 self.assertFalse( (tempdir/'test_user'/'Unicödé.txt').exists() )
                 self.assertFalse( (tempdir/'test_user'/'World.txt').exists() )
-                self._ftp_test()
+                self._ftp_test(ftp)
                 self.assertEqual( (tempdir/'test_user'/'Hello.txt').read_text('ASCII'), 'Hello, World!' )
                 self.assertEqual( (tempdir/'test_user'/'Unicödé.txt').read_text('UTF-8'), '€uro' )
                 self.assertEqual( (tempdir/'test_user'/'World.txt').read_text('ASCII'), 'foobar' )
@@ -69,8 +69,8 @@ class TestPureFtpdServer(unittest.TestCase):
     def test_ftpd_valkey(self):
         with DockerNetwork(verbose=VERBOSE) as network_name:
             with ( DummyValkeyServer(verbose=VERBOSE, docker_name='test-valkey', docker_network=network_name) as vk,
-                   DummyCustomPureFtpd(verbose=VERBOSE, docker_network=network_name, valkey_host='test-valkey') ):
-                self._ftp_test()
+                   DummyCustomPureFtpd(verbose=VERBOSE, docker_network=network_name, valkey_host='test-valkey') as ftp ):
+                self._ftp_test(ftp)
 
                 # look at the upload log
                 uploads :list[dict] = []
