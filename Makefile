@@ -1,6 +1,8 @@
 ## To get help on this makefile, run `make help`.
 # https://www.gnu.org/software/make/manual/make.html
 
+# This file is based on https://github.com/haukex/my-py-template/blob/main/Makefile
+
 # Adapt these variables for this project:
 py_code_locs = dummy_servers tests
 # Hint: $(filter-out whatever,$(py_code_locs))
@@ -12,15 +14,19 @@ perm_checks = ./* .gitignore .vscode .github
 PYTHON3BIN = python
 
 .PHONY: help tasklist installdeps test build-check outdated
-.PHONY: smoke-checks nix-checks shellcheck ver-checks coverage unittest
+.PHONY: smoke-checks nix-checks shellcheck ver-checks coverage unittest clean
 test:   smoke-checks nix-checks shellcheck ver-checks coverage  ## Run all tests
 # Reminder: If the `test` target changes, make the appropriate changes to .github/workflows/tests.yml
 
 # spell-checker: ignore txts tasklist installdeps shellcheck FSTYPE MJSON OSTYPE devpod euxo pythonpath rcfile sdist
-# spell-checker: ignore igbpyutils ipynb msys mypy noheadings notruncate pipefail pycache pylint pyproject venv vfat
+# spell-checker: ignore igbpyutils ipynb msys mypy noheadings notruncate pipefail pycache pylint pyproject vfat
 
 SHELL = /bin/bash
 .ONESHELL:  # each recipe is executed as a single script
+
+clean:
+	@set -uxo pipefail
+	git clean -dxf -e '.venv*'
 
 build-check: smoke-checks
 	@set -euxo pipefail

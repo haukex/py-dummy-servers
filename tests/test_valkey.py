@@ -4,7 +4,7 @@
 Author, Copyright, and License
 ------------------------------
 
-Copyright (c) 2025 Hauke Daempfling (haukex@zero-g.net)
+Copyright (c) 2025-2026 Hauke Daempfling (haukex@zero-g.net)
 at the Leibniz Institute of Freshwater Ecology and Inland Fisheries (IGB),
 Berlin, Germany, https://www.igb-berlin.de/
 
