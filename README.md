@@ -5,6 +5,10 @@ This package provides some simple mock servers that can be used in tests.
 This documentation is a bit sparse; please see the code for details.
 Docker is required, except for the SMTP and HTTP servers.
 
+You can include this library in your `requirements.txt` as follows:
+```
+dummy-servers@git+https://github.com/haukex/py-dummy-servers.git@v0.2.0
+```
 
 Author, Copyright, and License
 ------------------------------

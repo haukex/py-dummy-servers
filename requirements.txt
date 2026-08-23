@@ -1,4 +1,5 @@
 igbpyutils >= 1.0.0
-valkey == 6.1.1
-docker == 7.1.0
-aiosmtpd == 1.4.6
+valkey >= 6.1.1
+docker >= 7.2.0
+aiosmtpd >= 1.4.6
+psycopg[binary] >= 3.3.4

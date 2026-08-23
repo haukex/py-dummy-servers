@@ -7,17 +7,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dummy-servers"
 description = "Dummy Servers for Testing"
-version = "0.1.0"
+version = "0.2.0"
 authors = [ { name="Hauke D", email="haukex@zero-g.net" } ]
 # https://spdx.org/licenses/
 license = "LGPL-3.0-or-later"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dynamic = ["dependencies"]
 # https://pypi.org/classifiers/
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -54,6 +53,7 @@ dependencies = {file = ["requirements.txt"]}
 
 [tool.pyright]
 typeCheckingMode = "strict"
+# for stricter type checking, comment out all of these (except reportUnnecessaryTypeIgnoreComment):
 reportMissingTypeStubs = "none"
 reportUnknownMemberType = "none"
 reportUnknownArgumentType = "none"
@@ -120,7 +120,10 @@ max-line-length = 150
 enable_error_code = [ "ignore-without-code" ]
 ignore_missing_imports = true
 check_untyped_defs = true
-#disallow_incomplete_defs = true  # This would require a lot of `-> None` and such
+# for stricter type checking, uncomment these three:
+# disallow_incomplete_defs = true  # These would require a lot of `-> None` and such, but have
+# disallow_untyped_defs = true     # the advantage of giving mypy more knowledge of types
+# disallow_any_generics = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_return_any = true
