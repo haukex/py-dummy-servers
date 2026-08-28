@@ -29,7 +29,7 @@ VERBOSE = False
 
 class TestHTTPServer(unittest.TestCase):
 
-    def test_httpd(self):
+    def test_httpd(self) -> None:
         with DummyHTTPServer(verbose=VERBOSE) as httpd:
             requests.get( f'http://localhost:{httpd.port}/', timeout=5 ).raise_for_status()
             requests.head( f'http://localhost:{httpd.port}/hello', timeout=5 ).raise_for_status()

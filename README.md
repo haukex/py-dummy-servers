@@ -7,7 +7,7 @@ Docker is required, except for the SMTP and HTTP servers.
 
 You can include this library in your `requirements.txt` as follows:
 ```
-dummy-servers@git+https://github.com/haukex/py-dummy-servers.git@v0.2.0
+dummy-servers@git+https://github.com/haukex/py-dummy-servers.git@v0.2.1
 ```
 
 Author, Copyright, and License

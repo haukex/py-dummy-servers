@@ -24,7 +24,7 @@ along with this program. If not, see https://www.gnu.org/licenses/
 import os
 import sys
 import time
-from typing import Any, Optional
+from typing import Any, Generator, Optional
 from contextlib import closing, contextmanager
 from igbpyutils.file import Filename
 import docker.errors
@@ -37,7 +37,7 @@ import requests
 # Separate CM to help with: https://pylint.readthedocs.io/en/latest/user_guide/messages/warning/contextmanager-generator-missing-cleanup.html
 @contextmanager
 def _valkey_container(*, docker_network :Optional[str], docker_name :Optional[str], host_address :str, host_port :int,
-        verbose :bool, data_dir :Optional[Filename], no_clean :bool):
+        verbose :bool, data_dir :Optional[Filename], no_clean :bool) -> Generator[None, None, None]:
     xtra_args :dict[str,Any] = {}  # pylint: disable=duplicate-code
     if docker_name:
         xtra_args['name'] = docker_name
@@ -69,7 +69,7 @@ def _valkey_container(*, docker_network :Optional[str], docker_name :Optional[st
 def DummyValkeyServer(*,  # pylint: disable=invalid-name
         docker_network :Optional[str] = None, docker_name :Optional[str] = None,
         host_address :str = '127.0.0.1', host_port :int = 6379, verbose :bool = False,
-        timeout_s :float = 5, data_dir :Optional[Filename] = None, no_clean :bool = False):
+        timeout_s :float = 5, data_dir :Optional[Filename] = None, no_clean :bool = False) -> Generator[valkey.Valkey, None, None]:
     """A context manager that provides a Valkey server.
 
     Ensures that the Valkey server is up before returning.
@@ -83,7 +83,8 @@ def DummyValkeyServer(*,  # pylint: disable=invalid-name
         while True:
             try:
                 vk = valkey.Valkey()
-                vk.ping()
+                # The valkey package leaves the keyword arguments in this method's inherited signature untyped.
+                vk.ping()  # pyright: ignore[reportUnknownMemberType]
             except Exception as ex:
                 if time.monotonic() > start_time + timeout_s:
                     raise TimeoutError(f'failed to get response from Valkey server within {timeout_s:.3f}s') from ex

@@ -23,7 +23,7 @@ along with this program. If not, see https://www.gnu.org/licenses/
 """
 import os
 import time
-from typing import Any, Optional
+from typing import Any, Generator, Optional
 from contextlib import closing, contextmanager
 import requests
 import psycopg
@@ -36,7 +36,7 @@ import docker
 def DummyPostgresServer(*,  # pylint: disable=invalid-name
         docker_network :Optional[str] = None, docker_name :Optional[str] = None,
         postgres_tag :str = '18',
-        host_address :str = '127.0.0.1', host_port :int = 15432, verbose :bool = False):
+        host_address :str = '127.0.0.1', host_port :int = 15432, verbose :bool = False) -> Generator[psycopg.Connection[tuple[Any, ...]], None, None]:
     xtra_args :dict[str,Any] = {}  # pylint: disable=duplicate-code
     if docker_name:
         xtra_args['name'] = docker_name

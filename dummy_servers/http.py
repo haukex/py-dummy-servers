@@ -23,9 +23,9 @@ along with this program. If not, see https://www.gnu.org/licenses/
 """
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import Any, Generator, NamedTuple
 from threading import Semaphore, Thread
 from contextlib import contextmanager
-from typing import NamedTuple
 from queue import SimpleQueue
 
 class LoggedRequest(NamedTuple):
@@ -37,23 +37,23 @@ class LoggedRequest(NamedTuple):
 class _MyHTTPServer(HTTPServer):
     request_log :SimpleQueue[LoggedRequest]
     verbose :bool = False
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args :Any, **kwargs :Any):
         self.start_sem = Semaphore(0)
         self.request_log = SimpleQueue()
         if 'verbose' in kwargs:  # pragma: no cover
             self.verbose = kwargs['verbose']
             del kwargs['verbose']
         super().__init__(*args, **kwargs)
-    def server_activate(self):
+    def server_activate(self) -> None:
         super().server_activate()
         self.start_sem.release()
 
 class _MyHTTPRequestHandler(BaseHTTPRequestHandler):
-    def log_message(self, *args, **kwargs):
+    def log_message(self, *args :Any, **kwargs :Any) -> None:
         assert isinstance(self.server, _MyHTTPServer)
         if self.server.verbose:  # pragma: no cover
             super().log_message(*args, **kwargs)
-    def do_POST(self):  # pylint: disable=invalid-name
+    def do_POST(self) -> None:  # pylint: disable=invalid-name
         assert isinstance(self.server, _MyHTTPServer)
         body = b''
         try:
@@ -79,7 +79,8 @@ class DummyHTTP(NamedTuple):
     queue :SimpleQueue[LoggedRequest]
 
 @contextmanager
-def DummyHTTPServer(*, bind_address :str = '127.0.0.1', bind_port :int = 8083, verbose :bool = False):  # pylint: disable=invalid-name
+def DummyHTTPServer(*,  # pylint: disable=invalid-name
+        bind_address :str = '127.0.0.1', bind_port :int = 8083, verbose :bool = False) -> Generator[DummyHTTP, None, None]:
     """A context manager that provides a dummy HTTP server that can handle GET, POST, and HEAD requests.
 
     :return: A named tuple that includes a :class:`~queue.SimpleQueue` from which received requests can be retrieved.

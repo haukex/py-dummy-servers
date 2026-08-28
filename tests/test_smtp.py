@@ -35,7 +35,7 @@ from dummy_servers.smtp import DummySMTPServer
 
 VERBOSE = False
 
-def send_test_mail(*, subj :str, body :str, smtp_server :str, smtp_port :int, as_bcc :bool = False):
+def send_test_mail(*, subj :str, body :str, smtp_server :str, smtp_port :int, as_bcc :bool = False) -> None:
     msg = EmailMessage(policy=email.policy.SMTP)
     msg['From'] = 'sender@example.com'
     if as_bcc:
@@ -51,7 +51,7 @@ def send_test_mail(*, subj :str, body :str, smtp_server :str, smtp_port :int, as
 
 class TestSMTPServer(unittest.TestCase):
 
-    def test_smtp(self):
+    def test_smtp(self) -> None:
         igbpyutils.error.logging_config(level=logging.DEBUG if VERBOSE else logging.INFO)
         with DummySMTPServer(verbose=VERBOSE) as smtp:
             send_test_mail(subj='Test1', body='Hello, World!', smtp_server=smtp.host, smtp_port=smtp.port)

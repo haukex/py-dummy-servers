@@ -36,7 +36,7 @@ VERBOSE = False
 
 class TestPureFtpdServer(unittest.TestCase):
 
-    def _ftp_test(self, ftp :tuple[str, int]):
+    def _ftp_test(self, ftp :tuple[str, int]) -> None:
         with closing(ftplib.FTP_TLS()) as ftps:
             if VERBOSE:  # pragma: no cover
                 ftps.set_debuglevel(2)
@@ -48,7 +48,7 @@ class TestPureFtpdServer(unittest.TestCase):
             self.assertEqual( sorted(ftps.nlst()), sorted([".","..","Hello.txt","Unicödé.txt","World.txt"]) )
             ftps.quit()
 
-    def test_ftpd(self):
+    def test_ftpd(self) -> None:
         with TemporaryDirectory() as td:
             tempdir = Path(td)
             with DummyCustomPureFtpd(verbose=VERBOSE, data_dir=td, docker_name='test-ftp-server') as ftp:
@@ -66,17 +66,19 @@ class TestPureFtpdServer(unittest.TestCase):
                 r'[-0-9T:,+]+\ttest_user\t6\t/srv/ftp/test_user/Unicödé\.txt\n'
                 r'[-0-9T:,+]+\ttest_user\t6\t/srv/ftp/test_user/World\.txt$' )
 
-    def test_ftpd_valkey(self):
+    def test_ftpd_valkey(self) -> None:
         with DockerNetwork(verbose=VERBOSE) as network_name:
             with ( DummyValkeyServer(verbose=VERBOSE, docker_name='test-valkey', docker_network=network_name) as vk,
                    DummyCustomPureFtpd(verbose=VERBOSE, docker_network=network_name, valkey_host='test-valkey') as ftp ):
                 self._ftp_test(ftp)
 
                 # look at the upload log
-                uploads :list[dict] = []
+                uploads :list[dict[bytes, bytes]] = []
+                rv :list[list[bytes | list[tuple[bytes, dict[bytes, bytes]]]]]
                 last_id = b'0'
                 for _ in range(3):
-                    rv = vk.xread(count=1, block=1000, streams={ 'pure-ftpd.uploads': last_id })
+                    # The valkey package uses a shared sync/async return annotation for this synchronous method.
+                    rv = vk.xread(count=1, block=1000, streams={ 'pure-ftpd.uploads': last_id })  # type: ignore[assignment]
                     # [ [ b'pure-ftpd.uploads', [
                     #   (b'1760026109534-0', {b'time': b'2025-10-09T16:08:29,526222249+00:00', ...}),
                     #   (b'1760026109543-0', {b'time': b'2025-10-09T16:08:29,537292982+00:00', ...}),
@@ -100,7 +102,7 @@ class TestPureFtpdServer(unittest.TestCase):
                 self.assertEqual(uploads[2][b'name'], b'/srv/ftp/test_user/World.txt')
 
                 # make sure there are a few entries in the log
-                rv = vk.xread( streams={'pure-ftpd.log': '0'} )
+                rv = vk.xread( streams={'pure-ftpd.log': '0'} )  # type: ignore[assignment]
                 assert isinstance(rv, list) and len(rv)==1, rv
                 assert isinstance(rv[0], list) and len(rv[0])==2 and rv[0][0]==b'pure-ftpd.log', rv[0]
                 assert isinstance(rv[0][1], list) and all(

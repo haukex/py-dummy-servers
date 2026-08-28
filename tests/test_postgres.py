@@ -33,7 +33,7 @@ VERBOSE = False
 
 class TestDummyPostgresServer(unittest.TestCase):
 
-    def test_postgres(self):
+    def test_postgres(self) -> None:
         with DummyPostgresServer(verbose=VERBOSE) as conn:
             with conn.cursor() as cur:
                 cur.execute("CREATE TABLE test ( id serial PRIMARY KEY, num integer, data text) ")

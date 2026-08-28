@@ -23,7 +23,7 @@ along with this program. If not, see https://www.gnu.org/licenses/
 """
 import logging
 from queue import SimpleQueue
-from typing import NamedTuple
+from typing import Generator, NamedTuple
 from contextlib import contextmanager
 from email.parser import Parser, BytesParser
 from email.message import EmailMessage
@@ -61,7 +61,8 @@ class DummySMTP(NamedTuple):
     queue :SimpleQueue[EmailMessage]
 
 @contextmanager
-def DummySMTPServer(*, hostname :str = '127.0.0.1', port: int = 8025, verbose :bool = False):  # pylint: disable=invalid-name
+def DummySMTPServer(*,  # pylint: disable=invalid-name
+        hostname :str = '127.0.0.1', port :int = 8025, verbose :bool = False) -> Generator[DummySMTP, None, None]:
     """A context manager that provides a dummy SMTP server.
 
     :return: A named tuple that includes a :class:`~queue.SimpleQueue` from which received messages can be retrieved.

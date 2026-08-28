@@ -31,18 +31,18 @@ VERBOSE = False
 
 class TestValkeyServer(unittest.TestCase):
 
-    def test_valkey(self):
+    def test_valkey(self) -> None:
         with DummyValkeyServer(verbose=VERBOSE):
             pass  # The context manager already does its own PING self test.
 
-    def test_valkey_persist(self):
+    def test_valkey_persist(self) -> None:
         with TemporaryDirectory() as td:
             with DummyValkeyServer(verbose=VERBOSE, data_dir=td, no_clean=True) as vk:
                 vk.set('Foo', 'Bar')
             with DummyValkeyServer(verbose=VERBOSE, data_dir=td) as vk:
                 self.assertEqual( vk.get('Foo'), b'Bar' )
 
-    def test_valkey_err(self):
+    def test_valkey_err(self) -> None:
         with patch('valkey.Valkey.ping', side_effect=valkey.ValkeyError):
             with self.assertRaisesRegex(TimeoutError, r'\bfailed to get response from Valkey server within\b'):
                 with DummyValkeyServer(verbose=VERBOSE, timeout_s=2):

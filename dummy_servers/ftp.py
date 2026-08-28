@@ -24,15 +24,15 @@ along with this program. If not, see https://www.gnu.org/licenses/
 import os
 import sys
 from uuid import uuid4
-from typing import Any, Optional, NamedTuple
 from contextlib import closing, contextmanager
+from typing import Any, Generator, Optional, NamedTuple
 from igbpyutils.file import NamedTempFileDeleteLater, Filename
 import docker.errors
 import docker
 import requests
 
 @contextmanager
-def DockerNetwork(*, verbose :bool):  # pylint: disable=invalid-name
+def DockerNetwork(*, verbose :bool) -> Generator[str, None, None]:  # pylint: disable=invalid-name
     """A context manager that provides a Docker network.
 
     :return: The network name (a random string).
@@ -61,7 +61,7 @@ def DummyCustomPureFtpd(*,  # pylint: disable=invalid-name, too-many-locals
         image :str = 'ghcr.io/haukex/pure-ftpd:v0.9.6-7a5df7bf',
         host_address :str = '127.0.0.1', host_port :int = 2121, verbose :bool = False,
         ftp_passwd :bytes = b'test_user:PASS_WORD\n', valkey_host :Optional[str] = None,
-        data_dir :Optional[Filename] = None):
+        data_dir :Optional[Filename] = None) -> Generator[DummyFTP, None, None]:
     """A context manager that provides a `Pure-FTPd <https://github.com/jedisct1/pure-ftpd/>`_
     FTPS server via the custom Docker image <https://ghcr.io/haukex/pure-ftpd>.
 
