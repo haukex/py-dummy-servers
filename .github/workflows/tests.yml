@@ -39,7 +39,9 @@ jobs:
           # https://github.com/actions/setup-python#caching-packages-dependencies
           cache: pip
           cache-dependency-path: pyproject.toml
-      - run: sudo apt-get update && sudo apt-get build-dep python-ldap
+      # apt-cache showsrc python-ldap | grep Build-Depends
+      - name: Install python-ldap build dependencies
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential debhelper-compat dh-python libldap2-dev libsasl2-dev python3-all-dbg python3-all-dev python3-doc python3-pyasn1-modules python3-setuptools python3-sphinx
       - name: Install dependencies
         run: make installdeps
       - name: Run checks and lint
