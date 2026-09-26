@@ -53,9 +53,11 @@ def DummyPostgresServer(*,  # pylint: disable=invalid-name
             while True:
                 try:
                     conn = psycopg.connect(dsn, connect_timeout=2)
-                except psycopg.OperationalError:
+                except psycopg.OperationalError as ex:
                     if time.monotonic() >= deadline:
                         raise  # pragma: no cover
+                    if verbose:  # pragma: no cover
+                        print(f"Postgres connect failed ({ex}), will retry in 1s...")
                     time.sleep(1)
                 else:
                     break

@@ -54,7 +54,8 @@ installdeps:  ## Install project dependencies
 	@set -euxo pipefail
 	$(PYTHON3BIN) -m pip install --upgrade --upgrade-strategy=eager --no-warn-script-location 'pip>=25.1'
 	# Note `--editable .` only installs this project as editable, not all deps. It also installs the project's dependencies.
-	$(PYTHON3BIN) -m pip install --upgrade --upgrade-strategy=eager --no-warn-script-location --editable . --group dev
+	$(PYTHON3BIN) -m pip install --upgrade --upgrade-strategy=eager --no-warn-script-location --editable . --group dev \
+		--find-links https://github.com/cgohlke/python-ldap-build/releases/expanded_assets/v3.4.5
 	# other examples: git lfs install / npm ci
 	$(PYTHON3BIN) dev/patch_lib.py
 
