@@ -58,7 +58,7 @@ class DummyFTP(NamedTuple):
 @contextmanager
 def DummyCustomPureFtpd(*,  # pylint: disable=invalid-name, too-many-locals
         docker_network :Optional[str] = None, docker_name :Optional[str] = None,
-        image :str = 'ghcr.io/haukex/pure-ftpd:v0.9.6-7a5df7bf',
+        image :str = 'ghcr.io/haukex/pure-ftpd:v0.9.7-dfecbcc2',
         host_address :str = '127.0.0.1', host_port :int = 2121, verbose :bool = False,
         ftp_passwd :bytes = b'test_user:PASS_WORD\n', valkey_host :Optional[str] = None,
         data_dir :Optional[Filename] = None) -> Generator[DummyFTP, None, None]:

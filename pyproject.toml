@@ -7,13 +7,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dummy-servers"
 description = "Dummy Servers for Testing"
-version = "0.2.1"
+version = "0.2.2"
 authors = [ { name="Hauke D", email="haukex@zero-g.net" } ]
 # https://spdx.org/licenses/
 license = "LGPL-3.0-or-later"
 readme = "README.md"
 requires-python = ">=3.11"
-dynamic = ["dependencies"]
 # https://pypi.org/classifiers/
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -27,11 +26,41 @@ classifiers = [
     "Topic :: Software Development :: Testing",
 ]
 
+dependencies = [
+    "igbpyutils >= 1.0.2",
+    "valkey >= 6.1.1",
+    "docker >= 7.2.0",
+    "aiosmtpd >= 1.4.6",
+    "psycopg[binary] >= 3.3.4",
+]
+[dependency-groups]
+dev = [
+    "setuptools >= 77.0.0",
+    "igbpyutils == 1.0.2",
+    "simple-perms == 1.0.0 ; sys_platform != 'win32'",
+    "coverage[toml] == 7.16.1",
+    "coverage-simple-excludes == 1.1.1",
+    "pylint == 4.0.9",
+    "mypy == 2.3.1",
+    "pyright == 1.1.414",
+    "flake8 == 7.4.1",
+    "Flake8-pyproject == 1.2.4",
+    "build == 1.6.0 ; sys_platform == 'linux'",
+    "twine == 7.0.0 ; sys_platform == 'linux'",
+    # "pyinstaller == 6.22.3",
+    # for tests:
+    "requests == 2.34.2",
+    "types-requests",
+    "SQLAlchemy >= 2.0.52",
+]
+[project.optional-dependencies]
+# "tag" = ["package>=1.2.3"]
+
 [tool.setuptools]
 packages = ["dummy_servers"]
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+[project.scripts]
+# script-name = "package.name:function"
 
 [project.urls]
 "Repository" = "https://github.com/haukex/py-dummy-servers"
@@ -47,7 +76,7 @@ dependencies = {file = ["requirements.txt"]}
 # mypy:     ``# type: ignore[setting-name]``
 # coverage: ``# pragma: no cover``, ``# pragma: no branch``, and https://pypi.org/project/coverage-simple-excludes/
 
-# spell-checker: ignore setuptools pylint noqa mypy rcfile pyproject inlinevar overgeneral argparse booleaness
+# spell-checker: ignore setuptools pylint noqa mypy rcfile pyproject inlinevar overgeneral argparse booleaness pyinstaller
 
 # ##### ##### ##### ##### ##### https://github.com/microsoft/pyright/blob/main/docs/configuration.md ##### ##### ##### ##### #####
 

@@ -48,7 +48,7 @@ def _valkey_container(*, docker_network :Optional[str], docker_name :Optional[st
         xtra_args['environment'] = { 'VALKEY_EXTRA_FLAGS': '--appendonly yes' }
     with closing(docker.from_env()) as client:
         container = client.containers.run(
-            image='valkey/valkey:8', detach=True, auto_remove=True, ports={ '6379/tcp':(host_address,host_port) }, **xtra_args )
+            image='valkey/valkey:9', detach=True, auto_remove=True, ports={ '6379/tcp':(host_address,host_port) }, **xtra_args )
         try:
             yield
         finally:  # pylint: disable=duplicate-code
