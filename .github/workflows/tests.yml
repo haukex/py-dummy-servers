@@ -39,6 +39,7 @@ jobs:
           # https://github.com/actions/setup-python#caching-packages-dependencies
           cache: pip
           cache-dependency-path: pyproject.toml
+      - run: sudo apt-get update && sudo apt-get build-dep python-ldap
       - name: Install dependencies
         run: make installdeps
       - name: Run checks and lint
